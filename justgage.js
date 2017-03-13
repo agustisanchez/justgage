@@ -222,6 +222,10 @@ JustGage = function(config) {
     // formats numbers with commas where appropriate
     formatNumber: kvLookup('formatNumber', config, dataset, false),
 
+    // formatNumberSymbols: {groupSymbol:',', decSymbol: '.'}
+    // defines symbols for group and decimal separator
+    formatNumberSymbols: kvLookup('formatNumberSymbols', config, dataset, {groupSymbol: ',', decSymbol: '.'}),
+
     // pointer : bool
     // show value pointer
     pointer: kvLookup('pointer', config, dataset, false),
@@ -645,7 +649,7 @@ JustGage = function(config) {
   } else if (obj.config.humanFriendly) {
     obj.txtMinimum = humanFriendlyNumber(min, obj.config.humanFriendlyDecimal);
   } else if (obj.config.formatNumber) {
-    obj.txtMinimum = formatNumber(min);
+    obj.txtMinimum = formatNumber(min, obj.config.formatNumberSymbols);
   }
   obj.txtMin = obj.canvas.text(obj.params.minX, obj.params.minY, obj.txtMinimum);
   obj.txtMin.attr({
@@ -668,7 +672,7 @@ JustGage = function(config) {
   } else if (obj.config.humanFriendly) {
     obj.txtMaximum = humanFriendlyNumber(max, obj.config.humanFriendlyDecimal);
   } else if (obj.config.formatNumber) {
-    obj.txtMaximum = formatNumber(max);
+    obj.txtMaximum = formatNumber(max, obj.config.formatNumberSymbols);
   }
   obj.txtMax = obj.canvas.text(obj.params.maxX, obj.params.maxY, obj.txtMaximum);
   obj.txtMax.attr({
@@ -702,7 +706,7 @@ JustGage = function(config) {
   } else if (obj.config.humanFriendly) {
     obj.originalValue = humanFriendlyNumber(obj.originalValue, obj.config.humanFriendlyDecimal) + obj.config.symbol;
   } else if (obj.config.formatNumber) {
-    obj.originalValue = formatNumber(obj.originalValue) + obj.config.symbol;
+    obj.originalValue = formatNumber(obj.originalValue, obj.config.formatNumberSymbols) + obj.config.symbol;
   } else {
     obj.originalValue = (obj.originalValue * 1).toFixed(obj.config.decimals) + obj.config.symbol;
   }
@@ -719,7 +723,7 @@ JustGage = function(config) {
       } else if (obj.config.humanFriendly) {
         obj.txtValue.attr("text", humanFriendlyNumber(Math.floor(currentValue), obj.config.humanFriendlyDecimal) + obj.config.symbol);
       } else if (obj.config.formatNumber) {
-        obj.txtValue.attr("text", formatNumber(Math.floor(currentValue)) + obj.config.symbol);
+        obj.txtValue.attr("text", formatNumber(Math.floor(currentValue), obj.config.formatNumberSymbols) + obj.config.symbol);
       } else {
         obj.txtValue.attr("text", (currentValue * 1).toFixed(obj.config.decimals) + obj.config.symbol);
       }
@@ -804,7 +808,7 @@ JustGage.prototype.refresh = function(val, max) {
     } else if (obj.config.humanFriendly) {
       obj.txtMaximum = humanFriendlyNumber(obj.config.max, obj.config.humanFriendlyDecimal);
     } else if (obj.config.formatNumber) {
-      obj.txtMaximum = formatNumber(obj.config.max);
+      obj.txtMaximum = formatNumber(obj.config.max, obj.config.formatNumberSymbols);
     }
     if (!obj.config.reverse) {
       obj.txtMax.attr({
@@ -839,7 +843,7 @@ JustGage.prototype.refresh = function(val, max) {
   } else if (obj.config.humanFriendly) {
     displayVal = humanFriendlyNumber(displayVal, obj.config.humanFriendlyDecimal) + obj.config.symbol;
   } else if (obj.config.formatNumber) {
-    displayVal = formatNumber((displayVal * 1).toFixed(obj.config.decimals)) + obj.config.symbol;
+    displayVal = formatNumber((displayVal * 1).toFixed(obj.config.decimals), obj.config.formatNumberSymbols) + obj.config.symbol;
   } else {
     displayVal = (displayVal * 1).toFixed(obj.config.decimals) + obj.config.symbol;
   }
@@ -1100,10 +1104,10 @@ function humanFriendlyNumber(n, d) {
 }
 
 /** Format numbers with commas - From: http://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript */
-function formatNumber(x) {
+function formatNumber(x, formatNumberSymbols) {
   var parts = x.toString().split(".");
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return parts.join(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, formatNumberSymbols.groupSymbol);
+  return parts.join(formatNumberSymbols.decSymbol);
 }
 
 /**  Get style  */
